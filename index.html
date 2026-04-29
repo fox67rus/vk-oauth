@@ -20,37 +20,39 @@
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
                 <h1 class="text-xl font-bold mb-4 text-indigo-600">Настройка Scopes</h1>
                 
-                <div class="space-y-3 mb-6">
+                <div id="scope-list" class="space-y-3 mb-6">
                     <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
                         <input type="checkbox" name="vk-scope" value="wall" checked class="w-4 h-4 text-indigo-600">
                         <span class="text-sm font-medium">Стена (wall)</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                        <input type="checkbox" name="vk-scope" value="photos" checked class="w-4 h-4 text-indigo-600">
-                        <span class="text-sm font-medium">Фотографии (photos)</span>
+                        <input type="checkbox" name="vk-scope" value="groups" checked class="w-4 h-4 text-indigo-600">
+                        <span class="text-sm font-medium">Группы (groups)</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 bg-amber-50 rounded-xl cursor-pointer hover:bg-amber-100 transition-colors">
                         <input type="checkbox" name="vk-scope" value="offline" checked class="w-4 h-4 text-amber-600">
                         <span class="text-sm font-medium text-amber-900 font-bold">Вечный доступ (offline)</span>
                     </label>
                     <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                        <input type="checkbox" name="vk-scope" value="groups" checked class="w-4 h-4 text-indigo-600">
-                        <span class="text-sm font-medium">Группы (groups)</span>
-                    </label>
-                    <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                        <input type="checkbox" name="vk-scope" value="email" checked class="w-4 h-4 text-indigo-600">
-                        <span class="text-sm font-medium">Email</span>
+                        <input type="checkbox" name="vk-scope" value="photos" checked class="w-4 h-4 text-indigo-600">
+                        <span class="text-sm font-medium">Фото (photos)</span>
                     </label>
                 </div>
 
-                <button onclick="startAuth()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95">
-                    Авторизоваться и получить токены
-                </button>
+                <div class="space-y-3">
+                    <button onclick="startAuth()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg transition-all active:scale-95">
+                        VK ID Auth (SDK)
+                    </button>
+                    <button onclick="startDirectAuth()" class="w-full bg-slate-800 text-white py-3 rounded-2xl font-bold hover:bg-slate-900 shadow-lg transition-all active:scale-95 text-sm">
+                        Direct OAuth (Надежный метод)
+                    </button>
+                </div>
             </div>
             
-            <div class="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 text-[11px] text-indigo-700 leading-relaxed">
-                <h3 class="font-bold mb-1 uppercase">Как это работает</h3>
-                Кнопка выше открывает официальное окно VK ID. После подтверждения прав вы получите <b>Access Token</b> для запросов и <b>Refresh Token</b> для автоматического продления доступа в n8n.
+            <div class="bg-red-50 p-6 rounded-3xl border border-red-100 text-[11px] text-red-700 leading-relaxed">
+                <h3 class="font-bold mb-1 uppercase">Важно!</h3>
+                Если <b>wall</b> не появляется, проверь в настройках приложения VK: 
+                <br><b>Настройки -> Доверительный Redirect URI</b>. Там должен быть указан текущий адрес этой страницы.
             </div>
         </div>
 
@@ -71,56 +73,31 @@
                         <div id="access-token" class="bg-slate-50 p-4 rounded-xl font-mono text-[11px] break-all border border-slate-100 text-slate-600">---</div>
                     </div>
 
-                    <div>
-                        <div class="flex justify-between mb-2">
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Refresh Token (для n8n)</span>
-                            <button onclick="copy('refresh-token')" class="text-indigo-600 text-xs font-bold hover:underline">Копировать</button>
-                        </div>
-                        <div id="refresh-token" class="bg-amber-50 p-4 rounded-xl font-mono text-[11px] break-all border border-amber-100 text-amber-700 font-bold italic">---</div>
-                    </div>
-
                     <div class="grid grid-cols-2 gap-4 text-sm">
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
                             <span class="block text-[10px] text-slate-400 uppercase mb-1">User ID</span>
                             <span id="user-id" class="font-bold font-mono text-lg text-slate-800">---</span>
                         </div>
                         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                            <span class="block text-[10px] text-slate-400 uppercase mb-1">Разрешенные Scopes</span>
+                            <span class="block text-[10px] text-slate-400 uppercase mb-1">Реальные Scopes</span>
                             <div id="confirmed-scopes" class="flex flex-wrap gap-1 mt-1"></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-emerald-50 p-8 rounded-3xl border border-emerald-100 space-y-5 shadow-sm">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-emerald-800">🚀 Проверка публикации (wall.post)</h3>
-                    <span class="text-[10px] bg-emerald-200 text-emerald-700 px-2 py-1 rounded font-bold">TESTER</span>
+            <div id="test-block" class="bg-emerald-50 p-8 rounded-3xl border border-emerald-100 space-y-5">
+                <h3 class="text-lg font-bold text-emerald-800 italic">Тест публикации для n8n</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="target-id" placeholder="ID Группы (напр. 218...)" class="p-4 rounded-2xl border border-emerald-200 text-sm outline-none shadow-sm">
+                    <textarea id="post-text" class="p-4 rounded-2xl border border-emerald-200 text-sm outline-none shadow-sm" rows="1">Тест из песочницы 🚀</textarea>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label class="block text-[10px] text-emerald-600 uppercase font-bold mb-2 ml-1">ID Группы (test-id)</label>
-                        <input type="text" id="target-id" placeholder="218... (пусто = своя стена)" 
-                               class="w-full p-4 rounded-2xl border border-emerald-200 text-sm outline-none focus:ring-4 focus:ring-emerald-200 transition-all">
-                        <p class="text-[9px] text-emerald-500 mt-2 ml-1 italic">* Минус добавится автоматически.</p>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-emerald-600 uppercase font-bold mb-2 ml-1">Текст поста</label>
-                        <textarea id="post-text" class="w-full p-4 rounded-2xl border border-emerald-200 text-sm outline-none focus:ring-4 focus:ring-emerald-200 transition-all shadow-sm" rows="2">Автоматизация через VK ID & n8n 🚀</textarea>
-                    </div>
-                </div>
-
-                <button onclick="testWallPost()" id="post-btn" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 active:scale-[0.98]">
-                    Подготовить URL запроса
+                <button onclick="testWallPost()" id="post-btn" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-md">
+                    Подготовить ссылку для n8n
                 </button>
             </div>
 
             <div class="bg-slate-900 p-6 rounded-3xl shadow-xl">
-                <div class="flex justify-between items-center mb-4 text-slate-500">
-                    <h3 class="text-xs font-bold uppercase tracking-widest">Full Server Response</h3>
-                    <button onclick="location.reload()" class="text-[10px] border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-800">Сбросить</button>
-                </div>
                 <pre id="raw-json" class="json-container text-emerald-400 text-[10px] font-mono overflow-auto max-h-[250px] whitespace-pre-wrap"></pre>
             </div>
         </div>
@@ -128,88 +105,77 @@
 
     <script src="https://unpkg.com/@vkid/sdk@latest/dist-sdk/umd/index.js"></script>
     <script>
-        let currentAccessToken = "";
-        let selectedScopes = "";
+        const APP_ID = 54571103;
+        const REDIRECT_URI = window.location.origin + window.location.pathname;
 
-        // Основная функция входа
+        function getSelectedScopes() {
+            return Array.from(document.querySelectorAll('input[name="vk-scope"]:checked')).map(cb => cb.value).join(',');
+        }
+
+        // Метод 1: Через SDK
         function startAuth() {
-            const checkboxes = document.querySelectorAll('input[name="vk-scope"]:checked');
-            selectedScopes = Array.from(checkboxes).map(cb => cb.value).join(' ');
-
+            const scopes = getSelectedScopes().replace(/,/g, ' ');
             const VKID = window.VKIDSDK;
-            
-            // Инициализируем конфиг с динамическими правами
-            VKID.Config.init({
-                app: 54571103, 
-                redirectUrl: window.location.origin + window.location.pathname,
-                responseMode: 'callback',
-                scope: selectedScopes
-            });
-
-            // Запускаем полноэкранное окно
+            VKID.Config.init({ app: APP_ID, redirectUrl: REDIRECT_URI, responseMode: 'callback', scope: scopes });
             VKID.Auth.login().then(payload => {
-                VKID.Auth.exchangeCode(payload.code, payload.device_id)
-                    .then(res => display(res))
-                    .catch(err => alert("Ошибка обмена: " + (err.error_description || "Проверьте консоль")));
+                VKID.Auth.exchangeCode(payload.code, payload.device_id).then(res => display(res));
             });
         }
 
-        function display(data) {
-            const resSection = document.getElementById('results-section');
-            resSection.classList.remove('opacity-40', 'pointer-events-none');
+        // Метод 2: Прямой OAuth (иногда надежнее для Scope)
+        function startDirectAuth() {
+            const scopes = getSelectedScopes();
+            const authUrl = `https://oauth.vk.com/authorize?client_id=${APP_ID}&display=page&redirect_uri=${REDIRECT_URI}&scope=${scopes}&response_type=token&v=5.199`;
+            window.location.href = authUrl;
+        }
 
-            currentAccessToken = data.access_token;
-            document.getElementById('access-token').textContent = currentAccessToken;
-            document.getElementById('refresh-token').textContent = data.refresh_token || "REFRESH_TOKEN НЕ ВЫДАН";
+        // Обработка токена из URL (для Direct Auth)
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const params = new URLSearchParams(hash);
+                if (params.get('access_token')) {
+                    display({
+                        access_token: params.get('access_token'),
+                        user_id: params.get('user_id'),
+                        expires_in: params.get('expires_in'),
+                        scope: getSelectedScopes().replace(/,/g, ' ')
+                    });
+                }
+            }
+        });
+
+        function display(data) {
+            document.getElementById('results-section').classList.remove('opacity-40', 'pointer-events-none');
+            document.getElementById('access-token').textContent = data.access_token;
             document.getElementById('user-id').textContent = data.user_id;
             document.getElementById('raw-json').textContent = JSON.stringify(data, null, 2);
-
-            const expiry = document.getElementById('expiry-tag');
-            expiry.textContent = `Expires: ${data.expires_in}s`;
-            expiry.className = data.expires_in < 3601 ? "text-[10px] font-bold px-3 py-1 rounded-full bg-blue-100 text-blue-700" : "text-[10px] font-bold px-3 py-1 rounded-full bg-amber-100 text-amber-700";
-
+            
             const scopeContainer = document.getElementById('confirmed-scopes');
             scopeContainer.innerHTML = '';
-            (data.scope || selectedScopes).split(' ').forEach(s => {
+            const scopes = data.scope ? data.scope.split(/[ ,]+/) : [];
+            scopes.forEach(s => {
                 if(s) scopeContainer.innerHTML += `<span class="scope-badge">${s}</span>`;
             });
         }
 
         function testWallPost() {
-            const text = document.getElementById('post-text').value;
-            const targetIdInput = document.getElementById('target-id').value.trim();
-            const btn = document.getElementById('post-btn');
-            
-            let ownerId = "";
-            if (targetIdInput) {
-                ownerId = targetIdInput.startsWith('-') ? targetIdInput : `-${targetIdInput}`;
-            }
-
+            const target = document.getElementById('target-id').value.trim();
+            const ownerId = target ? (target.startsWith('-') ? target : `-${target}`) : '';
             const params = new URLSearchParams({
-                message: text,
-                access_token: currentAccessToken,
+                message: document.getElementById('post-text').value,
+                access_token: document.getElementById('access-token').textContent,
                 v: '5.199'
             });
             if (ownerId) params.append('owner_id', ownerId);
-
-            const apiUrl = `https://api.vk.com/method/wall.post?${params.toString()}`;
-            console.log("=== URL ДЛЯ ТЕСТА В n8n ===");
-            console.log(apiUrl);
             
-            btn.textContent = "URL В КОНСОЛИ (F12)";
-            btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
-            
-            alert(`URL сформирован!\n\nДля группы используется: ${ownerId || 'Личная стена'}\n\nСкопируй результат из консоли браузера.`);
-            
-            setTimeout(() => {
-                btn.textContent = "Подготовить URL запроса";
-                btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
-            }, 4000);
+            console.log("=== URL ДЛЯ n8n ===");
+            console.log(`https://api.vk.com/method/wall.post?${params.toString()}`);
+            alert("URL готов в консоли (F12)!");
         }
 
         function copy(id) {
-            const text = document.getElementById(id).textContent;
-            navigator.clipboard.writeText(text);
+            navigator.clipboard.writeText(document.getElementById(id).textContent);
             alert("Скопировано!");
         }
     </script>
