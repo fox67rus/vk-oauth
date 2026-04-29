@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VK Token Extractor & Group Test</title>
+    <title>VK Token Extractor — n8n Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .json-container::-webkit-scrollbar { width: 6px; }
@@ -18,7 +18,7 @@
         
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
-                <h1 class="text-xl font-bold mb-4 text-indigo-600">Настройка прав</h1>
+                <h1 class="text-xl font-bold mb-4 text-indigo-600">Настройка Scopes</h1>
                 
                 <div class="space-y-3 mb-6">
                     <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
@@ -37,18 +37,20 @@
                         <input type="checkbox" name="vk-scope" value="groups" checked class="w-4 h-4 text-indigo-600">
                         <span class="text-sm font-medium">Группы (groups)</span>
                     </label>
+                    <label class="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                        <input type="checkbox" name="vk-scope" value="email" checked class="w-4 h-4 text-indigo-600">
+                        <span class="text-sm font-medium">Email</span>
+                    </label>
                 </div>
 
-                <button onclick="startAuth()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95 mb-4">
-                    Получить токены
+                <button onclick="startAuth()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-100 transition-all active:scale-95">
+                    Авторизоваться и получить токены
                 </button>
             </div>
             
-            <div class="bg-blue-50 p-6 rounded-3xl border border-blue-100 text-[11px] text-blue-700 leading-relaxed">
-                <h3 class="font-bold mb-1 uppercase">Инструкция</h3>
-                <p>1. Выберите нужные права слева.</p>
-                <p>2. Нажмите синюю кнопку (это важно для получения <b>wall</b>).</p>
-                <p>3. После входа появится блок теста для групп.</p>
+            <div class="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 text-[11px] text-indigo-700 leading-relaxed">
+                <h3 class="font-bold mb-1 uppercase">Как это работает</h3>
+                Кнопка выше открывает официальное окно VK ID. После подтверждения прав вы получите <b>Access Token</b> для запросов и <b>Refresh Token</b> для автоматического продления доступа в n8n.
             </div>
         </div>
 
@@ -56,7 +58,7 @@
             
             <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-xl font-bold">Данные авторизации</h2>
+                    <h2 class="text-xl font-bold text-slate-800">Данные авторизации</h2>
                     <span id="expiry-tag" class="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">---</span>
                 </div>
 
@@ -90,36 +92,36 @@
                 </div>
             </div>
 
-            <div class="bg-emerald-50 p-8 rounded-3xl border border-emerald-100 space-y-5">
+            <div class="bg-emerald-50 p-8 rounded-3xl border border-emerald-100 space-y-5 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-emerald-800">🚀 Тест публикации (wall.post)</h3>
-                    <span class="text-[10px] bg-emerald-200 text-emerald-700 px-2 py-1 rounded font-bold">MODE: TESTER</span>
+                    <h3 class="text-lg font-bold text-emerald-800">🚀 Проверка публикации (wall.post)</h3>
+                    <span class="text-[10px] bg-emerald-200 text-emerald-700 px-2 py-1 rounded font-bold">TESTER</span>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-[10px] text-emerald-600 uppercase font-bold mb-2 ml-1">ID Группы (для теста)</label>
-                        <input type="text" id="target-id" placeholder="Напр. 218... (пусто = своя стена)" 
-                               class="w-full p-4 rounded-2xl border border-emerald-200 text-sm outline-none focus:ring-4 focus:ring-emerald-200 transition-all shadow-sm">
-                        <p class="text-[9px] text-emerald-500 mt-2 ml-1 italic">* Программа сама добавит минус для групп.</p>
+                        <label class="block text-[10px] text-emerald-600 uppercase font-bold mb-2 ml-1">ID Группы (test-id)</label>
+                        <input type="text" id="target-id" placeholder="218... (пусто = своя стена)" 
+                               class="w-full p-4 rounded-2xl border border-emerald-200 text-sm outline-none focus:ring-4 focus:ring-emerald-200 transition-all">
+                        <p class="text-[9px] text-emerald-500 mt-2 ml-1 italic">* Минус добавится автоматически.</p>
                     </div>
                     <div>
                         <label class="block text-[10px] text-emerald-600 uppercase font-bold mb-2 ml-1">Текст поста</label>
-                        <textarea id="post-text" class="w-full p-4 rounded-2xl border border-emerald-200 text-sm outline-none focus:ring-4 focus:ring-emerald-200 transition-all shadow-sm" rows="2">Привет из песочницы VK ID! 🚀</textarea>
+                        <textarea id="post-text" class="w-full p-4 rounded-2xl border border-emerald-200 text-sm outline-none focus:ring-4 focus:ring-emerald-200 transition-all shadow-sm" rows="2">Автоматизация через VK ID & n8n 🚀</textarea>
                     </div>
                 </div>
 
                 <button onclick="testWallPost()" id="post-btn" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 active:scale-[0.98]">
-                    Сформировать запрос для n8n
+                    Подготовить URL запроса
                 </button>
             </div>
 
             <div class="bg-slate-900 p-6 rounded-3xl shadow-xl">
                 <div class="flex justify-between items-center mb-4 text-slate-500">
                     <h3 class="text-xs font-bold uppercase tracking-widest">Full Server Response</h3>
-                    <button onclick="location.reload()" class="text-[10px] border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-800 transition-colors">Сбросить данные</button>
+                    <button onclick="location.reload()" class="text-[10px] border border-slate-700 px-3 py-1 rounded-full hover:bg-slate-800">Сбросить</button>
                 </div>
-                <pre id="raw-json" class="json-container text-emerald-400 text-[10px] font-mono overflow-auto max-h-[300px] whitespace-pre-wrap"></pre>
+                <pre id="raw-json" class="json-container text-emerald-400 text-[10px] font-mono overflow-auto max-h-[250px] whitespace-pre-wrap"></pre>
             </div>
         </div>
     </div>
@@ -129,23 +131,26 @@
         let currentAccessToken = "";
         let selectedScopes = "";
 
-        // Полноэкранная авторизация (для получения wall)
+        // Основная функция входа
         function startAuth() {
             const checkboxes = document.querySelectorAll('input[name="vk-scope"]:checked');
             selectedScopes = Array.from(checkboxes).map(cb => cb.value).join(' ');
 
             const VKID = window.VKIDSDK;
+            
+            // Инициализируем конфиг с динамическими правами
             VKID.Config.init({
-                app: 54571103, // Твой App ID
+                app: 54571103, 
                 redirectUrl: window.location.origin + window.location.pathname,
                 responseMode: 'callback',
                 scope: selectedScopes
             });
 
+            // Запускаем полноэкранное окно
             VKID.Auth.login().then(payload => {
                 VKID.Auth.exchangeCode(payload.code, payload.device_id)
                     .then(res => display(res))
-                    .catch(err => alert("Ошибка: " + (err.error_description || "Проверьте консоль")));
+                    .catch(err => alert("Ошибка обмена: " + (err.error_description || "Проверьте консоль")));
             });
         }
 
@@ -188,16 +193,16 @@
             if (ownerId) params.append('owner_id', ownerId);
 
             const apiUrl = `https://api.vk.com/method/wall.post?${params.toString()}`;
-            console.log("=== URL ДЛЯ n8n ===");
+            console.log("=== URL ДЛЯ ТЕСТА В n8n ===");
             console.log(apiUrl);
             
-            btn.textContent = "URL СКОПИРОВАН В КОНСОЛЬ (F12)";
+            btn.textContent = "URL В КОНСОЛИ (F12)";
             btn.classList.replace('bg-emerald-600', 'bg-indigo-600');
             
-            alert(`Готово!\n\nID получателя: ${ownerId || 'Личная стена'}\n\nТеперь открой консоль (F12), скопируй URL и вставь его в HTTP Request узел в n8n.`);
+            alert(`URL сформирован!\n\nДля группы используется: ${ownerId || 'Личная стена'}\n\nСкопируй результат из консоли браузера.`);
             
             setTimeout(() => {
-                btn.textContent = "Сформировать запрос для n8n";
+                btn.textContent = "Подготовить URL запроса";
                 btn.classList.replace('bg-indigo-600', 'bg-emerald-600');
             }, 4000);
         }
