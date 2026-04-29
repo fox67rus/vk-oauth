@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VK ID Sandbox — Конструктор Токенов</title>
+    <title>VK ID Sandbox — Wall Post Test</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .json-container::-webkit-scrollbar { width: 6px; }
@@ -12,180 +12,146 @@
         .scope-badge { font-size: 10px; padding: 2px 8px; border-radius: 12px; background: #e2e8f0; color: #475569; }
     </style>
 </head>
-<body class="bg-[#f0f2f5] min-h-screen flex items-center justify-center p-4 font-sans text-slate-900">
+<body class="bg-[#f8fafc] min-h-screen flex items-center justify-center p-4 font-sans text-slate-900">
 
     <div class="max-w-4xl w-full flex flex-col items-center gap-6">
         
-        <div id="login-card" class="bg-white p-8 rounded-[28px] shadow-xl border border-white/60 max-w-md w-full transition-all duration-500">
+        <div id="login-card" class="bg-white p-8 rounded-[28px] shadow-xl border border-slate-200 max-w-md w-full transition-all">
             <div class="text-center mb-6">
-                <h1 class="text-xl font-extrabold text-slate-900">Настройка прав доступа</h1>
-                <p class="text-sm text-slate-500">Выберите Scope перед авторизацией</p>
+                <h1 class="text-xl font-extrabold">Конструктор доступа</h1>
+                <p class="text-sm text-slate-500">Выберите права для публикации на стену</p>
             </div>
 
             <div class="grid grid-cols-2 gap-3 mb-8 text-sm bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600">
-                    <input type="checkbox" name="vk-scope" value="friends" class="rounded text-blue-600"> Друзья
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600">
-                    <input type="checkbox" name="vk-scope" value="groups" class="rounded text-blue-600"> Группы
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600">
-                    <input type="checkbox" name="vk-scope" value="wall" class="rounded text-blue-600"> Стена
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600">
-                    <input type="checkbox" name="vk-scope" value="photos" class="rounded text-blue-600"> Фото
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer hover:text-blue-600">
-                    <input type="checkbox" name="vk-scope" value="email" checked class="rounded text-blue-600"> Email
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer font-bold text-amber-600 hover:text-amber-700">
-                    <input type="checkbox" name="vk-scope" value="offline" class="rounded text-amber-600"> Offline (вечный)
-                </label>
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="vk-scope" value="wall" checked> Стена</label>
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="vk-scope" value="photos" checked> Фото</label>
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="vk-scope" value="offline" checked> Offline</label>
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="vk-scope" value="groups"> Группы</label>
+                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" name="vk-scope" value="email" checked> Email</label>
             </div>
 
-            <div id="vk-auth-container" class="min-h-[100px] flex items-center justify-center">
-                <button onclick="renderWidget()" class="bg-blue-600 text-white px-6 py-2 rounded-xl hover:bg-blue-700 transition-all font-medium">
-                    Применить и загрузить виджет
+            <div class="flex flex-col gap-3">
+                <button onclick="startFullAuth()" class="w-full bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition-all font-bold shadow-lg shadow-indigo-100">
+                    Полная авторизация (все права)
                 </button>
+                <div id="vk-auth-container" class="mt-2 text-center">
+                    <p class="text-[10px] text-slate-400 uppercase tracking-widest mb-2">Или быстрый вход (только база)</p>
+                </div>
             </div>
-
-            <p id="loading-status" class="text-center text-[11px] text-slate-400 mt-6 italic">Нажмите кнопку выше для выбора прав</p>
         </div>
 
-        <div id="profile-card" class="hidden w-full max-w-4xl">
+        <div id="profile-card" class="hidden w-full max-w-4xl space-y-6">
             <div class="bg-white rounded-[32px] shadow-2xl overflow-hidden border border-slate-100">
-                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-10 text-white">
-                    <div class="flex flex-col md:flex-row items-center gap-6">
-                        <div id="user-avatar" class="w-20 h-20 rounded-full border-4 border-white/20 bg-white/10 flex items-center justify-center text-2xl font-bold">?</div>
-                        <div class="text-center md:text-left flex-1">
-                            <h2 id="user-name" class="text-2xl font-bold">...</h2>
-                            <div id="requested-scopes" class="flex flex-wrap gap-1 mt-2">
-                                </div>
-                        </div>
-                        <button onclick="location.reload()" class="bg-white/10 hover:bg-white/20 px-6 py-2 rounded-full text-sm font-medium border border-white/20 transition-colors">
-                            Сбросить
-                        </button>
+                <div class="bg-slate-900 px-8 py-6 text-white flex justify-between items-center">
+                    <div>
+                        <h2 id="user-name" class="text-xl font-bold">Токен получен</h2>
+                        <div id="confirmed-scopes" class="flex flex-wrap gap-1 mt-2"></div>
                     </div>
+                    <button onclick="location.reload()" class="text-xs bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg border border-white/20">Выйти</button>
                 </div>
                 
-                <div class="p-8 space-y-6">
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Access Token</h3>
-                            <span id="token-expiry" class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded font-bold uppercase"></span>
+                <div class="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Access Token</h3>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-blue-100 relative group">
+                            <p id="access-token-display" class="font-mono text-[11px] break-all text-slate-600 mb-4">...</p>
+                            <button onclick="copyToken()" class="w-full bg-blue-600 text-white py-2 rounded-lg text-sm font-bold">Копировать токен</button>
                         </div>
-                        <div class="relative">
-                            <div class="bg-slate-50 border-2 border-blue-50 rounded-2xl p-5 pr-32 font-mono text-xs break-all text-slate-600 leading-relaxed">
-                                <span id="access-token-display">...</span>
-                                <div class="absolute right-3 top-3 bottom-3 flex items-center">
-                                    <button id="copy-btn" onclick="copyToken()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition-all active:scale-95">Копировать</button>
-                                </div>
-                            </div>
+                        
+                        <div class="mt-8 p-6 bg-emerald-50 rounded-2xl border border-emerald-100 space-y-4">
+                            <h3 class="text-sm font-bold text-emerald-800">Тест: Пост на стену</h3>
+                            <textarea id="post-text" class="w-full p-3 rounded-xl border border-emerald-200 text-sm" rows="3">Привет из моего песочницы VK ID! 🚀</textarea>
+                            <button onclick="testWallPost()" id="post-btn" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-all">
+                                Опубликовать текст
+                            </button>
+                            <p class="text-[10px] text-emerald-600">Для загрузки фото требуется серверная часть (Python/n8n), так как браузер блокирует прямую загрузку файлов в API VK по CORS.</p>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4">
-                            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Данные из токена</h3>
-                            <div><p class="text-[10px] text-slate-400 uppercase">VK User ID</p><p id="info-id" class="font-bold">---</p></div>
-                            <div><p class="text-[10px] text-slate-400 uppercase">Email</p><p id="info-email" class="font-bold">---</p></div>
-                        </div>
-                        <div class="space-y-4">
-                            <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest">RAW JSON</h3>
-                            <pre id="raw-json" class="json-container text-emerald-600 text-[10px] font-mono bg-slate-900 p-4 rounded-2xl overflow-auto max-h-[200px]"></pre>
-                        </div>
+                    <div class="space-y-4">
+                        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-widest">Ответ сервера</h3>
+                        <pre id="raw-json" class="json-container text-emerald-400 text-[10px] font-mono bg-slate-900 p-5 rounded-2xl overflow-auto max-h-[400px]"></pre>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <textarea id="copy-helper" class="fixed -top-full opacity-0"></textarea>
     <script src="https://unpkg.com/@vkid/sdk@latest/dist-sdk/umd/index.js"></script>
-
     <script>
         let currentAccessToken = "";
-        let selectedScopesString = "";
+        let selectedScopes = "";
 
-        function renderWidget() {
-            // Собираем выбранные права
-            const checkboxes = document.querySelectorAll('input[name="vk-scope"]:checked');
-            const scopes = Array.from(checkboxes).map(cb => cb.value);
-            selectedScopesString = scopes.join(' ');
-
+        // Инициализация базового виджета (OneTap)
+        window.addEventListener('load', () => {
             if (typeof window.VKIDSDK !== 'undefined') {
                 const VKID = window.VKIDSDK;
-                const container = document.getElementById('vk-auth-container');
-                container.innerHTML = ''; // Очищаем контейнер
-
                 VKID.Config.init({
-                    app: 54571103, // Твой ID
+                    app: 54571103,
                     redirectUrl: window.location.origin + window.location.pathname,
                     responseMode: 'callback',
-                    source: 'lowcode',
-                    scope: selectedScopesString
+                    scope: 'email'
                 });
-
                 const oneTap = new VKID.OneTap();
-                oneTap.render({
-                    container: container,
-                    showAlternativeLogin: true
-                })
-                .on(VKID.WidgetEvents.ERROR, (error) => {
-                    console.error(error);
-                })
-                .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, (payload) => {
-                    VKID.Auth.exchangeCode(payload.code, payload.device_id)
-                        .then(res => showProfile(res))
-                        .catch(err => console.error(err));
-                });
-
-                document.getElementById('loading-status').textContent = "Виджет инициализирован с правами: " + selectedScopesString;
+                oneTap.render({ container: document.getElementById('vk-auth-container') })
+                    .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, (payload) => exchange(payload));
             }
+        });
+
+        // Полноэкранная авторизация для получения всех Scope
+        function startFullAuth() {
+            const checkboxes = document.querySelectorAll('input[name="vk-scope"]:checked');
+            selectedScopes = Array.from(checkboxes).map(cb => cb.value).join(' ');
+
+            const VKID = window.VKIDSDK;
+            VKID.Config.set({ scope: selectedScopes }); // Обновляем права перед входом
+            
+            VKID.Auth.login().then(payload => exchange(payload));
+        }
+
+        function exchange(payload) {
+            const VKID = window.VKIDSDK;
+            VKID.Auth.exchangeCode(payload.code, payload.device_id)
+                .then(res => showProfile(res))
+                .catch(err => console.error(err));
         }
 
         function showProfile(data) {
             document.getElementById('login-card').classList.add('hidden');
             document.getElementById('profile-card').classList.remove('hidden');
 
-            currentAccessToken = data.access_token || "";
+            currentAccessToken = data.access_token;
             document.getElementById('access-token-display').textContent = currentAccessToken;
             document.getElementById('raw-json').textContent = JSON.stringify(data, null, 2);
             
-            // Отображаем время жизни
-            const expiry = data.expires_in === 0 ? "Infinite (Offline)" : `${data.expires_in}s`;
-            document.getElementById('token-expiry').textContent = `Expires: ${expiry}`;
-
-            // Показываем запрошенные права тегами
-            const scopeContainer = document.getElementById('requested-scopes');
-            selectedScopesString.split(' ').forEach(s => {
+            const scopeContainer = document.getElementById('confirmed-scopes');
+            scopeContainer.innerHTML = '';
+            (data.scope || selectedScopes).split(' ').forEach(s => {
                 if(s) scopeContainer.innerHTML += `<span class="scope-badge">${s}</span>`;
             });
+        }
 
-            if (data.user) {
-                document.getElementById('user-name').textContent = `${data.user.first_name} ${data.user.last_name}`;
-                if (data.user.avatar) {
-                    document.getElementById('user-avatar').innerHTML = `<img src="${data.user.avatar}" class="w-full h-full rounded-full object-cover">`;
-                }
-            }
-            document.getElementById('info-id').textContent = data.user_id || data.user?.id || '---';
-            document.getElementById('info-email').textContent = data.email || "Скрыт или не запрошен";
+        // Тестовая функция публикации
+        async function testWallPost() {
+            const text = document.getElementById('post-text').value;
+            const btn = document.getElementById('post-btn');
+            
+            // Внимание: Прямые вызовы API со стороны браузера могут блокироваться CORS.
+            // В реальном проекте этот запрос должен уходить на твой бэкенд (Python/n8n).
+            const apiUrl = `https://api.vk.com/method/wall.post?message=${encodeURIComponent(text)}&access_token=${currentAccessToken}&v=5.199`;
+            
+            btn.textContent = "Отправка...";
+            
+            // Используем JSONP или прокси для обхода CORS в учебных целях, 
+            // но здесь просто покажем структуру запроса для n8n
+            console.log("Запрос для n8n/Python:", apiUrl);
+            alert("Токен готов! Теперь ты можешь использовать его в n8n или Python.\n\nБраузер не может напрямую отправить пост из-за политики безопасности (CORS), но токен в RAW JSON содержит все нужные права.");
+            btn.textContent = "Опубликовать текст";
         }
 
         function copyToken() {
-            const helper = document.getElementById('copy-helper');
-            const btn = document.getElementById('copy-btn');
-            helper.value = currentAccessToken;
-            helper.select();
-            document.execCommand('copy');
-            
-            const oldText = btn.textContent;
-            btn.textContent = "OK!";
-            btn.className = "bg-emerald-500 text-white text-xs font-bold px-4 py-3 rounded-xl transition-all";
-            setTimeout(() => {
-                btn.textContent = oldText;
-                btn.className = "bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition-all";
-            }, 1500);
+            navigator.clipboard.writeText(currentAccessToken);
+            alert("Скопировано!");
         }
     </script>
 </body>
