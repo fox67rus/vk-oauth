@@ -13,6 +13,12 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .token-glow {
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.1);
+        }
     </style>
 </head>
 <body class="bg-[#f0f2f5] min-h-screen flex items-center justify-center p-4 font-sans text-slate-900">
@@ -34,50 +40,75 @@
             <div id="vk-auth-container" class="min-h-[150px] flex items-center justify-center"></div>
 
             <p class="text-[11px] text-slate-400 mt-8 leading-relaxed">
-                Используйте VK ID или почту Mail.ru для тестирования.
+                Используйте VK ID или почту Mail.ru для авторизации.
             </p>
         </div>
 
-        <!-- Секция данных -->
-        <div id="profile-card" class="hidden w-full max-w-4xl animate-[fadeIn_0.5s_ease-out]">
+        <!-- Секция данных (профиль пользователя) -->
+        <div id="profile-card" class="hidden w-full max-w-4xl animate-fade-in">
             <div class="bg-white rounded-[32px] shadow-2xl overflow-hidden border border-slate-100">
+                <!-- Шапка профиля -->
                 <div class="bg-gradient-to-r from-blue-600 to-indigo-700 px-8 py-10 text-white">
-                    <div class="flex items-center gap-6">
+                    <div class="flex flex-col md:flex-row items-center gap-6">
                         <div id="user-avatar" class="w-24 h-24 rounded-full border-4 border-white/20 bg-white/10 flex items-center justify-center text-3xl font-bold">
                             ?
                         </div>
-                        <div>
-                            <h2 id="user-name" class="text-3xl font-bold">Данные получены</h2>
-                            <p id="user-status" class="text-blue-100 flex items-center gap-2 mt-1">
-                                <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
-                                Ответ от API VK
+                        <div class="text-center md:text-left flex-1">
+                            <h2 id="user-name" class="text-3xl font-bold">Загрузка...</h2>
+                            <p id="user-status" class="text-blue-100 flex items-center justify-center md:justify-start gap-2 mt-1">
+                                <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                                Авторизация через VK ID
                             </p>
                         </div>
+                        <button onclick="location.reload()" class="bg-white/10 hover:bg-white/20 transition-colors px-6 py-2 rounded-full text-sm font-medium border border-white/20">
+                            Выйти
+                        </button>
                     </div>
                 </div>
                 
-                <div class="p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="space-y-6">
-                        <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Результат обмена</h3>
-                        <div class="grid grid-cols-1 gap-4">
-                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                <span class="text-xs text-slate-500 block mb-1">Статус</span>
-                                <span id="info-status" class="text-slate-800 font-medium">Ожидание...</span>
-                            </div>
-                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                                <span class="text-xs text-slate-500 block mb-1">Информация</span>
-                                <span id="info-msg" class="text-slate-800 text-sm italic">Выполните вход в виджете</span>
+                <div class="p-8 space-y-8">
+                    <!-- Секция с Токеном (Новая!) -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Access Token (для API)</h3>
+                            <span id="token-expiry" class="text-[10px] bg-amber-100 text-amber-700 px-2 py-1 rounded font-bold">EXPIRES IN: 3600s</span>
+                        </div>
+                        <div class="relative group">
+                            <div class="bg-slate-50 border-2 border-blue-100 rounded-2xl p-5 pr-32 transition-all group-hover:border-blue-300 token-glow">
+                                <p id="access-token-display" class="font-mono text-sm text-slate-700 break-all leading-relaxed select-all">
+                                    vk2.a.placeholder...
+                                </p>
+                                <div class="absolute right-3 top-3 bottom-3 flex items-center">
+                                    <button id="copy-btn" onclick="copyToken()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-3 rounded-xl transition-all shadow-lg active:scale-95 flex items-center gap-2">
+                                        <span>Копировать</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="space-y-6">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Raw JSON Response</h3>
-                            <button onclick="location.reload()" class="text-xs text-blue-600 hover:underline">Сбросить</button>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Левая колонка: Основные поля -->
+                        <div class="space-y-6">
+                            <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Профиль</h3>
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <span class="text-xs text-slate-500 block mb-1">ID Пользователя</span>
+                                    <span id="info-id" class="font-mono text-slate-800 font-medium">---</span>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                    <span class="text-xs text-slate-500 block mb-1">Email / Логин</span>
+                                    <span id="info-email" class="text-slate-800 font-medium">---</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="bg-slate-900 rounded-2xl p-4 shadow-inner overflow-hidden">
-                            <pre id="raw-json" class="json-container text-emerald-400 text-xs font-mono overflow-auto max-h-[300px] whitespace-pre-wrap">{}</pre>
+
+                        <!-- Правая колонка: Полный JSON -->
+                        <div class="space-y-6">
+                            <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">RAW Response (JSON)</h3>
+                            <div class="bg-slate-900 rounded-2xl p-5 shadow-inner relative">
+                                <pre id="raw-json" class="json-container text-emerald-400 text-[11px] font-mono overflow-auto max-h-[250px] whitespace-pre-wrap">{}</pre>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -85,18 +116,56 @@
         </div>
     </div>
 
-    <!-- Загружаем SDK -->
+    <!-- Текстовое поле для копирования (скрытое) -->
+    <textarea id="copy-helper" class="fixed -top-full left-0 opacity-0"></textarea>
+
+    <!-- Загружаем официальный SDK VK ID -->
     <script src="https://unpkg.com/@vkid/sdk@latest/dist-sdk/umd/index.js"></script>
 
     <script type="text/javascript">
+        let currentAccessToken = "";
+
+        /**
+         * Копирование токена в буфер обмена
+         */
+        function copyToken() {
+            const btn = document.getElementById('copy-btn');
+            const helper = document.getElementById('copy-helper');
+            
+            helper.value = currentAccessToken;
+            helper.select();
+            
+            try {
+                // Используем execCommand для стабильности в iframe
+                document.execCommand('copy');
+                
+                // Визуальный фидбек
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<span>Скопировано!</span>';
+                btn.classList.remove('bg-blue-600');
+                btn.classList.add('bg-emerald-600');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-emerald-600');
+                    btn.classList.add('bg-blue-600');
+                }, 2000);
+            } catch (err) {
+                console.error('Ошибка при копировании:', err);
+            }
+        }
+
+        /**
+         * Инициализация VK ID SDK
+         */
         function initVKID() {
             if (typeof window.VKIDSDK !== 'undefined') {
                 const VKID = window.VKIDSDK;
-                document.getElementById('loading-status').textContent = "Виджет готов";
+                document.getElementById('loading-status').textContent = "Виджет готов к работе";
 
                 VKID.Config.init({
                     app: 54571103,
-                    redirectUrl: window.location.href.split('?')[0], // Очищаем URL от параметров
+                    redirectUrl: window.location.origin + window.location.pathname, 
                     responseMode: VKID.ConfigResponseMode ? VKID.ConfigResponseMode.Callback : 'callback',
                     source: 'lowcode',
                     scope: 'email', 
@@ -111,52 +180,58 @@
                 })
                 .on(VKID.WidgetEvents.ERROR, (error) => {
                     console.error("VK Widget Error:", error);
-                    showDataInCard("Ошибка виджета", error);
+                    showProfileWithData("Ошибка виджета", error);
                 })
                 .on(VKID.OneTapInternalEvents.LOGIN_SUCCESS, function (payload) {
-                    console.log("Success Event Payload:", payload);
-                    
                     const code = payload.code;
                     const deviceId = payload.device_id;
-
-                    document.getElementById('loading-status').textContent = "Обмениваем код на токен...";
+                    document.getElementById('loading-status').textContent = "Обмениваем код на токены...";
 
                     VKID.Auth.exchangeCode(code, deviceId)
                         .then((result) => {
-                            console.log("Exchange Result:", result);
-                            showDataInCard("Успех", result);
+                            showProfileWithData("Авторизация прошла успешно", result);
                         })
                         .catch((err) => {
-                            console.error("Exchange Error:", err);
-                            showDataInCard("Ошибка обмена", err);
+                            showProfileWithData("Ошибка обмена кода", err);
                         });
                 });
-            } else {
-                document.getElementById('loading-status').textContent = "Ошибка: SDK не загружен";
             }
         }
 
-        function showDataInCard(status, data) {
+        /**
+         * Отображение данных
+         */
+        function showProfileWithData(statusTitle, data) {
             document.getElementById('login-card').classList.add('hidden');
             document.getElementById('profile-card').classList.remove('hidden');
 
-            document.getElementById('info-status').textContent = status;
+            // Сохраняем токен
+            currentAccessToken = data.access_token || "";
+            document.getElementById('access-token-display').textContent = currentAccessToken || "Токен отсутствует в ответе";
             document.getElementById('raw-json').textContent = JSON.stringify(data, null, 2);
+            
+            if (data.expires_in) {
+                document.getElementById('token-expiry').textContent = `EXPIRES IN: ${data.expires_in}s`;
+            }
 
             if (data.user) {
                 const u = data.user;
-                document.getElementById('user-name').textContent = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Пользователь';
-                if (u.avatar) {
-                    document.getElementById('user-avatar').innerHTML = `<img src="${u.avatar}" class="w-full h-full rounded-full object-cover">`;
+                document.getElementById('user-name').textContent = `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Пользователь VK';
+                if (u.avatar || u.photo_200) {
+                    const avatarUrl = u.avatar || u.photo_200;
+                    document.getElementById('user-avatar').innerHTML = `<img src="${avatarUrl}" class="w-full h-full rounded-full object-cover">`;
                 }
-                document.getElementById('info-msg').textContent = u.email || "Email не предоставлен";
-            } else if (data.error) {
-                document.getElementById('info-msg').textContent = data.error_description || data.error || "Произошла ошибка";
-                document.getElementById('user-status').innerHTML = `<span class="w-2 h-2 bg-red-500 rounded-full"></span> Ошибка`;
+                document.getElementById('info-id').textContent = u.id || data.user_id || '---';
+                document.getElementById('info-email').textContent = u.email || data.email || "Email не предоставлен";
+            } else {
+                // Если данные о пользователе не пришли (только токены)
+                document.getElementById('user-name').textContent = "Токены получены";
+                document.getElementById('info-id').textContent = data.user_id || '---';
+                document.getElementById('info-email').textContent = data.email || '---';
             }
         }
 
-        window.onload = initVKID;
+        window.addEventListener('load', initVKID);
     </script>
 </body>
 </html>
